@@ -115,8 +115,8 @@ def detect():
         return jsonify({"match": False, "message": "Error processing request", "box": None})
 
 # Run the app (uncomment this if running locally)
-if __name__ == "__main__":
-    app.run(debug=True)
+# if __name__ == "__main__":
+#     app.run(debug=True)
 
 
 
