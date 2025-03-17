@@ -107,7 +107,8 @@ def detect():
             "box": [int(coord) for coord in box_coords] if box_coords else None
         }
         print("Server Response:", response)  # Debugging log
-        
+if __name__ == "__main__":
+    app.run(debug=True)
         return jsonify(response)
     
     except Exception as e:
