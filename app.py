@@ -1,6 +1,5 @@
 import cv2
 import numpy as np
-import os
 import base64
 from flask import Flask, render_template, request, jsonify
 
@@ -10,22 +9,23 @@ app = Flask(__name__)
 face_proto = "models/opencv_face_detector.pbtxt"
 face_model = "models/opencv_face_detector_uint8.pb"
 
-if not os.path.exists(face_model) or not os.path.exists(face_proto):
-    print("Error: Model files not found! Place them in the 'models/' directory.")
-    exit()
-
 # Load the model
 net = cv2.dnn.readNetFromTensorflow(face_model, face_proto)
 
+# Manually specify image paths (since `os` cannot be used)
+image_paths = [
+    "images/person1.jpg",
+    "images/person2.jpg",
+    "images/person3.jpg"
+]
+
 # Load and process stored face images
-image_folder = "images/"
 stored_faces = []
 labels = []
-face_size = (100, 100)  # Ensure all faces are the same size
+face_size = (100, 100)  # Standardized face size
 label_counter = 0
 
-for filename in os.listdir(image_folder):
-    image_path = os.path.join(image_folder, filename)
+for image_path in image_paths:
     stored_image = cv2.imread(image_path)
 
     if stored_image is not None:
@@ -98,15 +98,14 @@ def detect():
 
         # Compare live face with stored faces
         label, confidence = face_recognizer.predict(live_gray_face)
-        match_threshold = 110  # Increased threshold for better recognition
+        match_threshold = 110  # Adjusted threshold for better recognition
 
         match = confidence < match_threshold
-        # response = {"match": match, "message": "Face Matched" if match else "Face Not Matched", "box": box_coords}
         response = {
-    "match": match,
-    "message": "Face Matched" if match else "Face Not Matched",
-    "box": [int(coord) for coord in box_coords] if box_coords else None
-}
+            "match": match,
+            "message": "Face Matched" if match else "Face Not Matched",
+            "box": [int(coord) for coord in box_coords] if box_coords else None
+        }
         print("Server Response:", response)  # Debugging log
         
         return jsonify(response)
@@ -115,5 +114,6 @@ def detect():
         print("Error:", str(e))
         return jsonify({"match": False, "message": "Error processing request", "box": None})
 
+# Run the app (uncomment this if running locally)
 # if __name__ == "__main__":
 #     app.run(debug=True)
